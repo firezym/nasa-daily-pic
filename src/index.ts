@@ -16,7 +16,7 @@ import { ILauncher } from '@jupyterlab/launcher';
 import { Widget } from '@lumino/widgets';
 import { jupyterIcon, imageIcon, refreshIcon } from '@jupyterlab/ui-components';
 
-interface NASAResponse {
+interface INASAResponse {
   copyright: string;
   date: string;
   explanation: string;
@@ -77,7 +77,7 @@ class NASAWidget extends Widget {
       return;
     }
 
-    const data = (await response.json()) as NASAResponse;
+    const data = (await response.json()) as INASAResponse;
 
     if (data.media_type === 'image') {
       // Populate the image
