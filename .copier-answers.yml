@@ -1,0 +1,19 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.2.4
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: firezym@gmail.com
+author_name: ocean
+data_format: string
+file_extension: ''
+has_binder: false
+has_settings: false
+kind: frontend
+labextension_name: nasa-daily-pic
+mimetype: ''
+mimetype_name: ''
+project_short_description: NASA Picture of the Day
+python_name: nasa-daily-pic
+repository: https://github.com/firezym/nasa-daily-pic
+test: true
+viewer_name: ''
+

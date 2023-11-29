@@ -1,0 +1,5 @@
+{
+  "packageManager": "python",
+  "packageName": "nasa-daily-pic",
+  "uninstallInstructions": "Use your Python package manager (pip, conda, etc.) to uninstall the package nasa-daily-pic"
+}
