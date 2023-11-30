@@ -47,7 +47,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: extension-artifacts
-        path: dist/nasa-daily-pic*
+        path: dist/nasa_daily_pic*
         if-no-files-found: error
 
   test_isolated:
