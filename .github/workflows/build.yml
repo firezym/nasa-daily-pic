@@ -41,7 +41,7 @@ jobs:
 
         pip install build
         python -m build
-        pip uninstall -y "nasa-daily-pic" jupyterlab
+        pip uninstall -y "nasa_daily_pic" jupyterlab
 
     - name: Upload extension packages
       uses: actions/upload-artifact@v3
@@ -72,7 +72,7 @@ jobs:
         sudo rm -rf $(which node)
         sudo rm -rf $(which node)
 
-        pip install "jupyterlab>=4.0.0,<5" nasa-daily-pic*.whl
+        pip install "jupyterlab>=4.0.0,<5" nasa_daily_pic*.whl
 
 
         jupyter labextension list
