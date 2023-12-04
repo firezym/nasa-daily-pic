@@ -14,7 +14,7 @@ import {
 import { ILauncher } from '@jupyterlab/launcher'
 
 import { Widget } from '@lumino/widgets'
-import { jupyterIcon, imageIcon, refreshIcon } from '@jupyterlab/ui-components'
+import { refreshIcon, LabIcon } from '@jupyterlab/ui-components' // imageIcon, jupyterIcon
 
 interface INASAResponse {
   copyright: string
@@ -25,12 +25,21 @@ interface INASAResponse {
   url: string
 }
 
+const astronautIcon = new LabIcon({
+  name: 'myNamespace:myIcon',
+  // 这里填入 Font Awesome 图标的 SVG 字符串
+  svgstr: '<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.--><path fill="navy" d="M156.6 384.9L125.7 354c-8.5-8.5-11.5-20.8-7.7-32.2c3-8.9 7-20.5 11.8-33.8L24 288c-8.6 0-16.6-4.6-20.9-12.1s-4.2-16.7 .2-24.1l52.5-88.5c13-21.9 36.5-35.3 61.9-35.3l82.3 0c2.4-4 4.8-7.7 7.2-11.3C289.1-4.1 411.1-8.1 483.9 5.3c11.6 2.1 20.6 11.2 22.8 22.8c13.4 72.9 9.3 194.8-111.4 276.7c-3.5 2.4-7.3 4.8-11.3 7.2v82.3c0 25.4-13.4 49-35.3 61.9l-88.5 52.5c-7.4 4.4-16.6 4.5-24.1 .2s-12.1-12.2-12.1-20.9V380.8c-14.1 4.9-26.4 8.9-35.7 11.9c-11.2 3.6-23.4 .5-31.8-7.8zM384 168a40 40 0 1 0 0-80 40 40 0 1 0 0 80z"/></svg>'
+});
+
 class NASAWidget extends Widget {
   // The image element associated with the widget.
+  readonly imageContainer: HTMLDivElement
   readonly img: HTMLImageElement
   // The summary text element associated with the widget.
   readonly summary: HTMLParagraphElement
-  readonly icon: HTMLDivElement
+  readonly copyright: HTMLParagraphElement
+  // 定义 icon 元素
+  readonly spinner: HTMLDivElement;
 
   /**
    * Construct a new NASA widget.
@@ -40,23 +49,50 @@ class NASAWidget extends Widget {
 
     this.addClass('nasa-widget')
 
-    // Add a summary element to the panel
-    this.summary = document.createElement('p')
-    this.node.appendChild(this.summary)
+    // 创建包裹容器
+    this.imageContainer = document.createElement('div');
+    this.imageContainer.className = 'image-container'; // 设置类名以便样式化
 
-    // Add an image element to the panel
-    this.img = document.createElement('img')
-    this.node.appendChild(this.img)
+    // 添加图片元素到包裹容器
+    this.img = document.createElement('img');
+    this.imageContainer.appendChild(this.img);
 
-    // Add a jupyter icon to the panel
-    this.icon = document.createElement('div')
-    this.node.appendChild(this.icon)
-    jupyterIcon.element({
-      container: this.icon,
-      height: '66px',
-      width: '60px',
-      marginLeft: '12px'
-    })
+    // 添加摘要元素到面板
+    this.summary = document.createElement('p');
+    this.summary.className = 'nasa-summary'; // 为摘要元素设置一个类名
+    this.node.appendChild(this.summary);
+
+    // 添加版权信息到面板
+    this.copyright = document.createElement('p');
+    this.copyright.className = 'nasa-copyright'; // 为版权信息设置一个类名
+    this.imageContainer.appendChild(this.copyright);
+
+    // 创建并添加旋转图标
+    this.spinner = document.createElement('div');
+    this.spinner.className = 'fa fa-spinner fa-spin'; // 使用 Font Awesome 的旋转图标
+    // this.spinner.className = 'fa fa-rocket fa-spin'
+    this.spinner.style.display = 'none'; // 默认隐藏
+    this.node.appendChild(this.spinner);
+
+    this.node.appendChild(this.imageContainer);
+
+    // 为图片添加加载完成的监听器
+    this.img.onload = () => {
+      // 图片加载完成后的操作
+      this.onImageLoaded();
+    };
+
+  }
+
+  // 图片加载完成后的处理函数
+  private onImageLoaded(): void {
+    // 隐藏旋转图标
+    this.spinner.style.display = 'none';
+
+    // 显示图片和摘要
+    this.img.style.display = '';
+    this.summary.style.display = '';
+    this.copyright.style.display = '';
   }
 
   /**
@@ -64,8 +100,16 @@ class NASAWidget extends Widget {
    */
   async updateNASAImage(): Promise<void> {
     const response = await fetch(
+      // DEMO_KEY
       `https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&date=${this.randomDate()}`
     )
+    // 显示旋转图标
+    this.spinner.style.display = '';
+
+    // 隐藏图片和摘要，以防止显示旧内容
+    this.img.style.display = 'none';
+    this.summary.style.display = 'none';
+    this.copyright.style.display = 'none';
 
     if (!response.ok) {
       const data = await response.json()
@@ -74,6 +118,9 @@ class NASAWidget extends Widget {
       } else {
         this.summary.innerText = response.statusText
       }
+      // 隐藏旋转图标
+      this.spinner.style.display = 'none';
+      this.summary.style.display = '';
       return
     }
 
@@ -85,11 +132,15 @@ class NASAWidget extends Widget {
       this.img.title = data.title
       this.summary.innerText = data.title
       if (data.copyright) {
-        this.summary.innerText += ` (Copyright ${data.copyright})`
+        this.copyright.innerText = `Copyright: ${data.copyright}`
       }
     } else {
       this.summary.innerText = 'This random fetch is not an image.'
+      // 隐藏旋转图标
+      this.spinner.style.display = 'none';
+      this.summary.style.display = '';
     }
+
   }
 
   /**
@@ -129,7 +180,7 @@ function activate(
         widget = new MainAreaWidget({ content })
         widget.id = 'nasa-pic'
         widget.title.label = 'NASA Picture'
-        widget.title.icon = imageIcon
+        widget.title.icon = astronautIcon // imageIcon
         widget.title.closable = true
       }
       if (!tracker.has(widget)) {
@@ -153,7 +204,7 @@ function activate(
       // Activate the widget
       app.shell.activateById(widget.id)
     },
-    icon: imageIcon
+    icon: astronautIcon // imageIcon
   })
 
   // Add the command to the palette.
