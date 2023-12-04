@@ -8,7 +8,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow-y: scroll;  /* 纵轴滚动 */
+  overflow-y: scroll; /* 纵轴滚动 */
   /* position: relative;  可以不设定，暂时没问题 */
 }
 
@@ -30,13 +30,13 @@
 /* 摘要样式 */
 .nasa-summary {
   z-index: 10; /* 确保最高层级 */
-  margin: 0;  /* 重置边距 */
-  position: absolute;   /* 新增：设为绝对定位 */
-  top: 0px;         /* 新增：距离容器顶部 10px */
-  left: 0px;           /* 新增：距离容器左侧 10px */
-  color: white;         /* 新增：文本颜色为白色 */
+  margin: 0; /* 重置边距 */
+  position: absolute; /* 新增：设为绝对定位 */
+  top: 0px; /* 新增：距离容器顶部 10px */
+  left: 0px; /* 新增：距离容器左侧 10px */
+  color: white; /* 新增：文本颜色为白色 */
   background-color: rgba(0, 0, 0, 0.5); /* 新增：半透明黑色背景 */
-  padding: 5px;         /* 新增：内边距 */
+  padding: 5px; /* 新增：内边距 */
   /* border-radius: 5px;   /* 新增：圆角边框 */
   text-align: left;
   font-size: 26px;
@@ -44,27 +44,31 @@
 
 /* 版权信息样式 */
 .nasa-copyright {
-  margin: 0;  /* 重置边距 */
-  position: absolute;   /* 新增：设为绝对定位 */
-  bottom: 0px;         /* 新增：距离容器底部 10px */
-  right: 0px;           /* 新增：距离容器右侧 10px */
-  color: white;         /* 新增：文本颜色为白色 */
+  margin: 0; /* 重置边距 */
+  position: absolute; /* 新增：设为绝对定位 */
+  bottom: 0px; /* 新增：距离容器底部 10px */
+  right: 0px; /* 新增：距离容器右侧 10px */
+  color: white; /* 新增：文本颜色为白色 */
   background-color: rgba(0, 0, 0, 0.5); /* 新增：半透明黑色背景 */
-  padding: 5px;         /* 新增：内边距 */
+  padding: 5px; /* 新增：内边距 */
   /* border-radius: 5px;   /* 新增：圆角边框 */
   text-align: left;
   font-size: 16px;
 }
 
 .nasa-widget .fa-spinner {
-/* .nasa-widget .fa-rocket { */
+  /* .nasa-widget .fa-rocket { */
   font-size: 60px;
 }
 
 /* 旋转动画 */
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .fa-spin {
