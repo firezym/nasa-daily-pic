@@ -14,7 +14,46 @@ import {
 import { ILauncher } from '@jupyterlab/launcher'
 
 import { Widget } from '@lumino/widgets'
+import { ISignal, Signal } from '@lumino/signaling'
 import { refreshIcon, LabIcon } from '@jupyterlab/ui-components' // imageIcon, jupyterIcon
+
+interface ICount {
+  clickCount: number
+}
+const BUTTON_WIDGET_CLASS = 'jp-button-widget'
+class CountButtonWidget extends Widget {
+  constructor(options = { node: document.createElement('button') }) {
+    super(options)
+
+    this.addClass(BUTTON_WIDGET_CLASS)
+
+    // 创建旋转图标
+    this.spinner = document.createElement('div')
+    this.spinner.className = 'fa fa-sync-alt' //fa-solid fa-arrows-rotate fa-rotate
+    this.spinner.style.display = ''
+    // 将旋转图标作为按钮的子元素
+    this.node.appendChild(this.spinner)
+
+    // this.node.textContent = 'Refresh';
+
+    this.node.addEventListener('click', () => {
+      this._count.clickCount = this._count.clickCount + 1
+      this._stateChanged.emit(this._count)
+    })
+  }
+
+  public spinner: HTMLDivElement
+
+  private _count: ICount = {
+    clickCount: 0
+  }
+
+  private _stateChanged = new Signal<CountButtonWidget, ICount>(this)
+
+  public get stateChanged(): ISignal<CountButtonWidget, ICount> {
+    return this._stateChanged
+  }
+}
 
 interface INASAResponse {
   copyright: string
@@ -24,13 +63,6 @@ interface INASAResponse {
   title: string
   url: string
 }
-
-const astronautIcon = new LabIcon({
-  name: 'myNamespace:myIcon',
-  // 这里填入 Font Awesome 图标的 SVG 字符串
-  svgstr:
-    '<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.--><path fill="navy" d="M156.6 384.9L125.7 354c-8.5-8.5-11.5-20.8-7.7-32.2c3-8.9 7-20.5 11.8-33.8L24 288c-8.6 0-16.6-4.6-20.9-12.1s-4.2-16.7 .2-24.1l52.5-88.5c13-21.9 36.5-35.3 61.9-35.3l82.3 0c2.4-4 4.8-7.7 7.2-11.3C289.1-4.1 411.1-8.1 483.9 5.3c11.6 2.1 20.6 11.2 22.8 22.8c13.4 72.9 9.3 194.8-111.4 276.7c-3.5 2.4-7.3 4.8-11.3 7.2v82.3c0 25.4-13.4 49-35.3 61.9l-88.5 52.5c-7.4 4.4-16.6 4.5-24.1 .2s-12.1-12.2-12.1-20.9V380.8c-14.1 4.9-26.4 8.9-35.7 11.9c-11.2 3.6-23.4 .5-31.8-7.8zM384 168a40 40 0 1 0 0-80 40 40 0 1 0 0 80z"/></svg>'
-})
 
 class NASAWidget extends Widget {
   // The image element associated with the widget.
@@ -42,6 +74,8 @@ class NASAWidget extends Widget {
   // 定义 icon 元素
   readonly spinner: HTMLDivElement
 
+  readonly refreshbutton: CountButtonWidget
+
   /**
    * Construct a new NASA widget.
    */
@@ -49,6 +83,11 @@ class NASAWidget extends Widget {
     super()
 
     this.addClass('nasa-widget')
+
+    this.refreshbutton = new CountButtonWidget()
+    // this.addWidget(this._button);
+    this.node.appendChild(this.refreshbutton.node)
+    this.refreshbutton.stateChanged.connect(this._onRefresh, this)
 
     // 创建包裹容器
     this.imageContainer = document.createElement('div')
@@ -84,9 +123,16 @@ class NASAWidget extends Widget {
     }
   }
 
+  private _onRefresh(emitter: CountButtonWidget, count: ICount): void {
+    this.updateNASAImage()
+    console.log('Hey, a Signal has been received from', emitter)
+    console.log(`Image refreshed ${count.clickCount} times.`)
+  }
+
   // 图片加载完成后的处理函数
   private onImageLoaded(): void {
     // 隐藏旋转图标
+    this.refreshbutton.spinner.className = 'fa fa-sync-alt'
     this.spinner.style.display = 'none'
 
     // 显示图片和摘要
@@ -104,6 +150,7 @@ class NASAWidget extends Widget {
       `https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&date=${this.randomDate()}`
     )
     // 显示旋转图标
+    this.refreshbutton.spinner.className = 'fa fa-sync-alt fa-spin' // 开始旋转
     this.spinner.style.display = ''
 
     // 隐藏图片和摘要，以防止显示旧内容
@@ -119,6 +166,7 @@ class NASAWidget extends Widget {
         this.summary.innerText = response.statusText
       }
       // 隐藏旋转图标
+      this.refreshbutton.spinner.className = 'fa fa-sync-alt'
       this.spinner.style.display = 'none'
       this.summary.style.display = ''
       return
@@ -135,8 +183,10 @@ class NASAWidget extends Widget {
         this.copyright.innerText = `Copyright: ${data.copyright}`
       }
     } else {
-      this.summary.innerText = 'This random fetch is not an image.'
+      this.summary.innerText =
+        'This random fetch is not an image. Please refresh again.'
       // 隐藏旋转图标
+      this.refreshbutton.spinner.className = 'fa fa-sync-alt'
       this.spinner.style.display = 'none'
       this.summary.style.display = ''
     }
@@ -168,6 +218,13 @@ function activate(
 
   // Declare a widget variable
   let widget: MainAreaWidget<NASAWidget>
+
+  const astronautIcon = new LabIcon({
+    name: 'myNamespace:myIcon',
+    // 这里填入 Font Awesome 图标的 SVG 字符串
+    svgstr:
+      '<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.--><path fill="navy" d="M156.6 384.9L125.7 354c-8.5-8.5-11.5-20.8-7.7-32.2c3-8.9 7-20.5 11.8-33.8L24 288c-8.6 0-16.6-4.6-20.9-12.1s-4.2-16.7 .2-24.1l52.5-88.5c13-21.9 36.5-35.3 61.9-35.3l82.3 0c2.4-4 4.8-7.7 7.2-11.3C289.1-4.1 411.1-8.1 483.9 5.3c11.6 2.1 20.6 11.2 22.8 22.8c13.4 72.9 9.3 194.8-111.4 276.7c-3.5 2.4-7.3 4.8-11.3 7.2v82.3c0 25.4-13.4 49-35.3 61.9l-88.5 52.5c-7.4 4.4-16.6 4.5-24.1 .2s-12.1-12.2-12.1-20.9V380.8c-14.1 4.9-26.4 8.9-35.7 11.9c-11.2 3.6-23.4 .5-31.8-7.8zM384 168a40 40 0 1 0 0-80 40 40 0 1 0 0 80z"/></svg>'
+  })
 
   // Add an application command
   const command: string = 'nasa:open'
