@@ -104,3 +104,8 @@
   animation: spin 1s linear infinite;
   color: white;
 }
+
+.jp-button-widget:hover {
+  background-color: #f2f2f2; /* 鼠标悬停时的背景色 */
+  color: #333; /* 鼠标悬停时的文字颜色 */
+}

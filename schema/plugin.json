@@ -1,0 +1,14 @@
+{
+  "title": "NASA Daily Image",
+  "description": "Settings for NASA Daily Image",
+  "properties": {
+    "api_key": {
+      "type": "string",
+      "title": "NASA Daily Image API Key",
+      "description": "Your API key for NASA data access.",
+      "default": ""
+    }
+  },
+  "additionalProperties": false,
+  "type": "object"
+}
