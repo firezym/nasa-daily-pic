@@ -1,6 +1,7 @@
 {
   "title": "NASA Daily Image",
   "description": "Settings for NASA Daily Image",
+  "jupyter.lab.setting-icon": "nasa-daily-pic:rocket-icon",
   "properties": {
     "api_key": {
       "type": "string",
