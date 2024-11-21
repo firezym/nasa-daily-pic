@@ -160,7 +160,9 @@ class NASAWidget extends Widget {
   async updateNASAImage(): Promise<void> {
     // Use DEMO_KEY if no API key is provided
     const response = await fetch(
-      `https://api.nasa.gov/planetary/apod?api_key=${this.apiKey}&date=${this.randomDate()}`
+      `https://api.nasa.gov/planetary/apod?api_key=${
+        this.apiKey
+      }&date=${this.randomDate()}`
     )
     // 显示旋转图标
     this.refreshbutton.spinner.className = 'fa fa-sync-alt fa-spin' // 开始旋转
@@ -238,14 +240,17 @@ function activate(
   // Load settings
   if (settingRegistry) {
     settingRegistry
-    .load('nasa-daily-pic:plugin')
-    .then(settings => {
-      mysettings = settings
-    }).catch(reason => {
-      console.error('failed to load settings for nasa-daily-pic:plugin.', reason)
-    })
+      .load('nasa-daily-pic:plugin')
+      .then(settings => {
+        mysettings = settings
+      })
+      .catch(reason => {
+        console.error(
+          'failed to load settings for nasa-daily-pic:plugin.',
+          reason
+        )
+      })
   }
-
 
   // Add an application command
   const command: string = 'nasa:open'
